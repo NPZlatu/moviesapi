@@ -3,6 +3,7 @@ const request = require("request");
 const cheerio = require("cheerio");
 const app = express();
 let quizes = { overall: [], names: [], dialogues: [], pictures: [] };
+let hindiQuizes = { overall: [], names: [], dialogues: [], stars: [] };
 
 const createQuizArray = function() {
     const names = quizes.names;
@@ -16,6 +17,26 @@ const createQuizArray = function() {
         quizes.overall.push(obj);
     }
 };
+
+app.get("/hindi", function(req, res) {
+    let page = req.params.index;
+    page = 2;
+    url = "https://www.filmyquotes.com/categories/comedy/" + page;
+    request(url, function(error, response, html) {
+        if (!error) {
+            const $ = cheerio.load(html);
+            $("h5.card-title").each(function(i, elem) {
+                hindiQuizes.dialogues.push($(elem).text());
+            });
+            $(".badge.badge-primary.ml-1").each(function(i, elem) {
+                hindiQuizes.names.push($(elem).text());
+            });
+            $(".badge.badge-primary.ml-2").each(function(i, elem) {
+                hindiQuizes.stars.push($(elem).text());
+            });
+        }
+    });
+});
 
 app.get("/quiz", function(req, res) {
     url =
